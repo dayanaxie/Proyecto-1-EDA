@@ -10,7 +10,9 @@ output:
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
 # Cargar librerías
-library(readr, plotly)
+library(readr)
+library(plotly)
+
 
 # Lectura de datos
 data <- read.csv("data/ai_job_replacement_2020_2026_v2.csv")
@@ -29,6 +31,116 @@ data <- read.csv("data/ai_job_replacement_2020_2026_v2.csv")
 ```{r}
 # prueba para comprobar los datos
 head(data)
+```
+• Gráfica 1: Impacto directo en salarios y riesgo de automatización.
+Efectos económicos inmediatos (salarios).
+
+```{r}
+multifig1 <- plot_ly(
+  data = data,
+  x = ~automation_risk_percent,
+  y = ~ai_replacement_score,
+  z = ~salary_change_percent,
+  type = "scatter3d",
+  mode = "markers",
+  marker = list(
+    size = ~salary_before_usd / 1000,   # tamaño proporcional al salario antes
+    color = ~salary_after_usd,          # color según salario después
+    colorscale = "Viridis",
+    showscale = TRUE
+  ),
+  text = ~paste("Job:", job_role,
+                "<br>Industry:", industry,
+                "<br>Country:", country)
+)
+
+multifig1 <- multifig1 %>% layout(
+  scene = list(
+    xaxis = list(title = "Riesgo de automatización (%)"),
+    yaxis = list(title = "Score de reemplazo IA"),
+    zaxis = list(title = "Cambio salarial (%)")
+  ),
+  title = "Impacto de la IA en Salarios y Riesgo de automatización"
+)
+
+multifig1
+```
+
+• Gráfica 2: Presión de reskilling y disrupción por industria.
+Transformación estructural por industria.
+
+```{r}
+
+multifig2 <- plot_ly(
+  type = 'scatterpolar',
+  fill = 'toself'
+)
+
+industries <- unique(data$industry)
+
+for (ind in industries) {
+  subset <- data[data$industry == ind, ]
+  multifig2 <- multifig2 %>% add_trace(
+    r = c(mean(subset$skill_gap_index),
+          mean(subset$skill_demand_growth_percent),
+          mean(subset$reskilling_urgency_score),
+          mean(subset$ai_disruption_intensity),
+          mean(subset$wage_volatility_index)),
+    theta = c("Brecha de habilidades", 
+              "Crecimiento demanda de skills", 
+              "Urgencia de reskilling", 
+              "Disrupción IA", 
+              "Volatilidad salarial"),
+    name = ind
+  )
+}
+
+multifig2 <- multifig2 %>% layout(
+  polar = list(
+    radialaxis = list(visible = TRUE, range = c(0,100))
+  ),
+  title = "Presión de Reskilling y Disrupción Tecnológica por Industria"
+)
+
+multifig2
+```
+
+• Gráfica 3: Relación entre educación, adopción tecnológica y posibilidad de trabajo remoto.
+Factores sociales y educativos que condicionan la adaptación laboral.
+
+```{r}
+
+# Parallel coordinates plot
+multifig3 <- plot_ly(
+  data = data,
+  type = 'parcoords',
+  line = list(color = ~automation_risk_percent,
+              colorscale = 'Viridis',
+              showscale = TRUE),
+  dimensions = list(
+    list(range = c(0,100),
+         label = "Riesgo de automatización (%)",
+         values = data$automation_risk_percent),
+    list(range = c(0,10),
+         label = "Nivel de adopción IA",
+         values = as.numeric(factor(data$ai_adoption_level))),
+    list(range = c(0,100),
+         label = "Viabilidad remota",
+         values = data$remote_feasibility_score),
+    list(range = c(0,100),
+         label = "Presión de transición de skills",
+         values = data$skill_transition_pressure),
+    list(range = c(1,3),
+         label = "Nivel educativo",
+         values = as.numeric(factor(data$education_requirement_level)))
+  )
+)
+
+multifig3 <- multifig3 %>% layout(
+  title = "Educación, adopción de IA y viabilidad del trabajo remoto"
+)
+
+multifig3
 ```
 
 
