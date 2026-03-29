@@ -1,0 +1,26 @@
+---
+title: "EDA Futuro del Trabajo"
+output:
+  html_document:
+    df_print: paged
+---
+
+# ¿En qué medida la inteligencia artificial está afectando el mercado laboral?
+
+## Introducción
+
+## Descripción del Problema
+
+## Definición de la Fuente de Datos
+
+## Descripción Detallada y Explicación
+
+```{r}
+# Carga de librerías y lectura de datos
+library(readr)
+
+data <- read.csv("data/ai_job_replacement_2020_2026_v2.csv")
+head(data)
+```
+
+## Conclusiones
