@@ -3,6 +3,7 @@ title: "EDA Futuro del Trabajo"
 authors: "Felipe Masís Calderón y Dayana Xie Li"
 output:
   html_document:
+    theme: flatly
     df_print: paged
 ---
 ```{r setup, include=FALSE}
@@ -12,6 +13,8 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 # Cargar librerías
 library(readr)
 library(plotly)
+library(dplyr)
+
 
 
 # Lectura de datos
@@ -21,6 +24,11 @@ data <- read.csv("data/ai_job_replacement_2020_2026_v2.csv")
 # ¿En qué medida la inteligencia artificial está afectando el mercado laboral?
 
 ## Introducción
+La inteligencia artificial (IA) está transformando el mercado laboral a una velocidad sin precedentes. Lo que hace unos años era un tema de debate teórico, hoy es una realidad que impacta directamente en la empleabilidad, los salarios y las habilidades requeridas en casi todos los sectores Haciendo que surjan preguntas como ¿La IA nos va a reemplazar?, ¿Todos los empleos se verán afectados?, entre otras preguntas.
+Esta transformación genera incertidumbre, pero también abre oportunidades para quienes logran adaptarse. Comprender la magnitud y las características de este cambio es fundamental para anticipar sus efectos y diseñar estrategias de formación y política laboral efectivas.
+
+El presente análisis exploratorio de datos (EDA) busca entender a profundidad el futuro del trabajo en la era de la IA por medio de un dataset que contiene información detallada de cientos de perfiles profesionales, abarcando variables como el riesgo de automatización, la evolución salarial, la brecha de habilidades, el nivel de adopción de IA y características contextuales como industria, país y nivel educativo. A través de este análisis, se busca responder a una pregunta central que guía toda la exploración: ¿En qué medida la inteligencia artificial está afectando el mercado laboral?
+
 
 ## Descripción del Problema
 
@@ -28,11 +36,173 @@ data <- read.csv("data/ai_job_replacement_2020_2026_v2.csv")
 
 ## Descripción Detallada y Explicación
 
+
+
+
+
+
+
+
+Al explorar la relación entre el riesgo de automatización y los cambios salariales, nos encontramos con un panorama revelador. En esta visualización, cada punto representa un rol laboral; su posición horizontal indica el porcentaje estimado de automatización, mientras que la vertical refleja la variación salarial tras la adopción de inteligencia artificial. El tamaño de cada punto añade una tercera dimensión: la volatilidad de los salarios en ese puesto. Además, los colores distinguen los sectores industriales, y es posible aislar cada industria para estudiarla de manera independiente, facilitando la comparación entre ellas.
+
+Al mirar hacia la derecha, donde el riesgo es más alto, encontramos una mezcla interesante: algunos puestos muestran cambios salariales positivos, otros negativos, y entre ellos destacan roles como los representantes de servicio al cliente (customer support rep) y los conductores de camión (truck driver). En estos casos, la urgencia de recapacitación es alta, independientemente de si su salario subió o bajó. Esto sugiere que, aunque el riesgo de automatización sea elevado, el impacto económico puede variar, pero la necesidad de actualizar habilidades se mantiene como una constante.
+
+Otro detalle interesante es cómo se comporta la urgencia de recapacitación a medida que aumenta el riesgo. En general, cuando el riesgo es bajo, la urgencia también tiende a ser baja, a medida que el riesgo crece, la urgencia va subiendo. Sin embargo, hay puestos con riesgo alto que no tienen una urgencia tan alta, pero la tendencia es clara. Esto sugiere que los trabajadores en empleos más expuestos a la IA sienten (o se les exige) una mayor presión para actualizarse.
+
+En cuanto al rango de los datos, todos los puntos se concentran entre el 5% y el 95% de riesgo. No hay empleos con riesgo 0% ni 100%, lo cual tiene sentido: ningún trabajo está completamente a salvo de la automatización ni totalmente condenado a desaparecer. Dentro de ese espectro, las industrias de salud, manufactura, transporte y tecnología muestran un patrón parecido: la mayoría de sus puestos se concentran entre el 20% y el 80% de riesgo, y los cambios salariales se mueven entre una caída del 20% y un aumento del 20%. Aunque son sectores muy distintos, comparten ese rango común. Un mismo rol puede tener comportamientos distintos en diferentes lugares, lo que nos recuerda que el impacto de la IA no solo depende del tipo de trabajo, sino también del contexto donde se desempeña.
+
 ```{r}
-# prueba para comprobar los datos
-head(data)
+multifig1 <- plot_ly(data, 
+        x = ~automation_risk_percent, 
+        y = ~salary_change_percent, 
+        size = ~wage_volatility_index,
+        color = ~industry,  # o ~automation_risk_category
+        text = ~paste("Puesto:", job_role, 
+                      "<br>País:", country,
+                      "<br>Urgencia de recapacitación:", reskilling_urgency_score),
+        hoverinfo = "text+x+y",
+        type = 'scattergl',   
+        mode = 'markers',
+        sizes = c(10, 80)) %>%
+  layout(title = "Relación entre riesgo de automatización y cambio salarial",
+         xaxis = list(title = "Riesgo de automatización (%)"),
+         yaxis = list(title = "Cambio salarial (%)"))
+
+multifig1
+```
+
+Profundizando en las industrias destacadas anteriormente, el análisis con promedios nos ofrece una visión más clara y menos fragmentada de la evolución de la urgencia de recapacitación.
+
+En tecnología, el promedio de urgencia se mantiene consistentemente alto, lo que confirma que este sector es el más expuesto a la presión de actualización. La innovación constante obliga a que incluso los puestos con riesgo medio o bajo mantengan una urgencia elevada, reflejando que la recapacitación aquí no es una opción, sino una condición estructural de empleabilidad.
+
+En salud, los valores promedio muestran una urgencia creciente pero más moderada. Aunque la automatización no reemplaza la dimensión humana del cuidado, la digitalización de procesos clínicos y administrativos empuja a los trabajadores hacia nuevas competencias digitales. El promedio suaviza las diferencias entre roles, pero deja claro que la tendencia es ascendente y sostenida.
+
+La manufactura presenta una evolución más irregular: los promedios revelan picos de urgencia que coinciden con momentos de fuerte inversión en automatización industrial. Esto sugiere que la recapacitación en este sector no es lineal, sino que responde a ciclos de innovación tecnológica. El promedio ayuda a visualizar que, aunque algunos puestos pueden tener urgencia baja, el conjunto del sector se desplaza hacia niveles medios y altos.
+
+En transporte, los promedios muestran que la urgencia de recapacitación casi se mantiene durante los años, pero se ve afectada por un pico de incremento en el 2025, pero volviendo a mantenerse en el margen.
+
+En conjunto, el análisis con promedios confirma que la urgencia de recapacitación es un fenómeno transversal y progresivo. Aunque cada industria tiene su propio ritmo y dinámica, todas convergen en una misma conclusión: la inteligencia artificial redefine las trayectorias laborales y convierte la actualización de habilidades en el verdadero denominador común del futuro del trabajo.
+```{r}
+# Industrias seleccionadas
+industrias_sel <- c("Technology", "Healthcare", "Manufacturing", "Transportation")
+
+data_ind <- data %>%
+  filter(industry %in% industrias_sel) %>%
+  group_by(industry, year, automation_risk_category) %>%
+  summarise(
+    reskilling_urgency_score = mean(reskilling_urgency_score, na.rm = TRUE),
+    .groups = "drop"
+  )
+# Crear lista de plots
+plots_ind <- lapply(industrias_sel, function(ind) {
+  df_ind <- data_ind %>% filter(industry == ind)
+  
+  plot_ly(
+    df_ind,
+    x = ~year,
+    y = ~reskilling_urgency_score,
+    color = ~automation_risk_category,
+    type = 'scatter',
+    mode = 'lines+markers',
+    text = ~paste(
+      "Año:", year,
+      "<br>Urgencia:", reskilling_urgency_score,
+      "<br>Riesgo:", automation_risk_category
+    ),
+    hoverinfo = "text",
+    showlegend = TRUE
+  )
+})
+
+# Parámetros del layout
+ncols <- 2
+nrows <- ceiling(length(plots_ind) / ncols)
+
+# Crear subplot
+facet_ind <- subplot(
+  plots_ind,
+  nrows = 2,
+  shareX = TRUE,
+  shareY = TRUE,
+  margin = 0.1
+)
+
+# Crear anotaciones (títulos por panel)
+annotations <- list()
+
+for (i in seq_along(industrias_sel)) {
+  col <- (i - 1) %% ncols
+  row <- floor((i - 1) / ncols)
+  
+  annotations[[i]] <- list(
+    text = paste0("<b>", industrias_sel[i], "</b>"),
+    x = (col + 0.5) / ncols,
+    y = 1 - (row / nrows) + 0.02,
+    xref = "paper",
+    yref = "paper",
+    showarrow = FALSE,
+    font = list(size = 14)
+  )
+}
+
+facet_ind <- facet_ind %>%
+  layout(
+    title = "Evolución de la urgencia de recapacitación por industria",
+    annotations = annotations,
+    
+    # Ejes X
+    xaxis = list(title = "Año"),
+    xaxis2 = list(title = "Año"),
+    xaxis3 = list(title = "Año"),
+    xaxis4 = list(title = "Año"),
+    
+    # Ejes Y
+    yaxis = list(title = "Urgencia recapacitación", range = c(0, 100)),
+    yaxis2 = list(title = "Urgencia recapacitación", range = c(0, 100)),
+    yaxis3 = list(title = "Urgencia recapacitación", range = c(0, 100)),
+    yaxis4 = list(title = "Urgencia recapacitación", range = c(0, 100))
+  )
+facet_ind
+```
+
+
+Siguiendo el hilo de lo que se descubrió anteriormente, ahora podemos adentrarnos en cómo ese riesgo se relaciona con otras facetas del mundo laboral. En esta nueva visualización, cada puesto se dibuja como una línea que cruza cinco ejes: el riesgo de automatización, la volatilidad salarial, la urgencia de recapacitación, la presión por actualizar habilidades y la viabilidad para trabajar de forma remota. 
+
+Las líneas más claras, que representan los empleos con mayor riesgo, se acumulan en los valores más altos de urgencia y presión. Esto confirma lo que ya intuíamos: los trabajos más amenazados por la IA son también aquellos donde más apremia aprender nuevas competencias. Pero lo que resulta llamativo es que, en el eje de volatilidad salarial, encontramos una situación distinta. Aquí, las líneas oscuras (bajo riesgo) también llegan a valores altos, es decir, hay puestos que, aunque poco expuestos a la automatización, sufren una inestabilidad económica considerable. Esa volatilidad no es exclusiva de los empleos en riesgo, y quizás responde a otros factores como la estacionalidad o la precariedad propia de ciertos sectores.
+
+Al mirar el último eje, la viabilidad remota, las líneas claras (alto riesgo) son las que alcanzan los puntajes más altos en trabajo a distancia, mientras que las oscuras (bajo riesgo) se concentran en valores bajos como una minoría. Esto sugiere que muchos de los empleos que pueden realizarse desde casa son precisamente aquellos que la IA podría automatizar con mayor facilidad, mientras que los trabajos más seguros suelen requerir presencia física. 
+
+```{r}
+
+multifig2 <- plot_ly(
+  data = data,
+  type = 'parcoords',
+  line = list(color = ~automation_risk_percent,
+              colorscale = 'Viridis',
+              showscale = TRUE,
+              colorbar = list(title = "Riesgo (%)")),
+  dimensions = list(
+    list(range = c(0, 100),
+         label = "Riesgo de automatización (%)",
+         values = ~automation_risk_percent),
+    list(range = c(0, 50),
+         label = "Volatilidad salarial",
+         values = ~wage_volatility_index),
+    list(range = c(0, 100),     
+         label = "Urgencia de recapacitación",
+         values = ~reskilling_urgency_score),
+    list(range = c(0, 100),
+         label = "Presión de transición de skills",
+         values = ~skill_transition_pressure),
+    list(range = c(0, 100),
+         label = "Viabilidad remota",
+         values = ~remote_feasibility_score)
+  )
+) %>%
+  layout(title = "Perfiles de empleo: riesgo, impacto salarial y adaptación")
+
+multifig2
 ```
 
 
 
-## Conclusiones
