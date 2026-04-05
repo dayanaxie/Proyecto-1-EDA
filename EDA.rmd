@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(readr)
 library(plotly)
 library(dplyr)
-
+library(ggplot2)
 
 
 # Lectura de datos
@@ -31,17 +31,163 @@ El presente análisis exploratorio de datos (EDA) busca entender a profundidad e
 
 
 ## Descripción del Problema
+El avance de la inteligencia artificial ha introducido una serie de cambios estructurales en el mercado laboral que aún no se comprenden completamente. Si bien existe una percepción general de que la IA puede reemplazar empleos, la realidad es más compleja: algunos trabajos desaparecen, otros se transforman y muchos nuevos surgen en el proceso. Esto plantea un problema central: no solo se trata de determinar si la IA sustituye empleos, sino de entender cómo los está transformando.
+
+Uno de los principales desafíos radica en la heterogeneidad del impacto. No todos los sectores ni todos los roles se ven afectados de la misma manera. Mientras algunos trabajos presentan un alto riesgo de automatización, otros mantienen una relativa estabilidad debido a la necesidad de habilidades humanas difíciles de replicar, como la creatividad, la empatía o la toma de decisiones complejas. Al mismo tiempo, variables como el cambio salarial, la volatilidad económica y la necesidad de recapacitación añaden nuevas capas de complejidad al análisis.
+
+En este contexto, surge la necesidad de explorar cómo se relacionan estos factores entre sí. ¿Existe una relación directa entre el riesgo de automatización y la disminución salarial? ¿Los trabajos más expuestos a la IA requieren necesariamente una mayor adaptación de habilidades? ¿Qué papel juegan factores como la industria o la posibilidad de trabajo remoto en este proceso?
+
+Este proyecto aborda estas preguntas desde una perspectiva exploratoria, buscando identificar patrones, tendencias y posibles anomalías en los datos. Más que ofrecer respuestas definitivas, el objetivo es construir una comprensión más profunda del fenómeno, permitiendo visualizar cómo la inteligencia artificial está reconfigurando el mundo laboral en múltiples dimensiones.
 
 ## Definición de la Fuente de Datos
+Para llevar a cabo este análisis, se utiliza un conjunto de datos titulado “Future of Work in the Age of AI (2020–2026)”, el cual recopila información sobre distintos roles laborales en múltiples industrias y países a lo largo del tiempo. Este dataset permite observar cómo han evolucionado diversas variables clave en el contexto de la adopción de inteligencia artificial.
+
+El conjunto de datos incluye información detallada sobre cientos de perfiles profesionales, considerando variables como el porcentaje de riesgo de automatización, los cambios salariales asociados a la adopción de IA, la volatilidad de los ingresos, así como indicadores relacionados con la adaptación laboral, como la urgencia de recapacitación y la presión por la transición de habilidades. Además, incorpora variables contextuales como la industria, el país, el nivel educativo requerido y la viabilidad de trabajo remoto.
+
+Una de las principales fortalezas de esta fuente de datos es su carácter multidimensional, lo que permite analizar no solo variables de forma aislada, sino también las interacciones entre ellas. Esto resulta especialmente útil en un contexto como el del mercado laboral, donde los cambios no ocurren de manera independiente, sino como parte de un sistema complejo de relaciones.
+
+Cabe destacar que, al tratarse de un dataset de carácter exploratorio, los datos deben interpretarse como una representación aproximada de tendencias generales y no como valores absolutos. Sin embargo, su riqueza en variables y su cobertura temporal lo convierten en una base sólida para identificar patrones relevantes y generar hipótesis sobre el impacto de la inteligencia artificial en el futuro del trabajo.
 
 ## Descripción Detallada y Explicación
+Para comprender el impacto de la inteligencia artificial en el mercado laboral, el primer paso es explorar cada variable de forma individual. Antes de buscar relaciones o patrones complejos, es necesario conocer cómo se distribuyen los datos por sí solos, qué proporciones existen entre categorías y dónde se concentran los valores. Este punto de partida permite construir una base sólida sobre la cual irán tomando sentido las visualizaciones más complejas que siguen.
 
+El primer aspecto a observar es cómo se distribuyen los empleos según su nivel de riesgo de automatización de forma categórica. Esta gráfica de barras muestra la cantidad de registros clasificados en tres categorías: bajo, medio y alto riesgo. La altura de cada barra permite comparar directamente cuántos empleos pertenecen a cada grupo.
 
+```{r}
+risk_counts <- data %>%
+  count(automation_risk_category) %>%
+  mutate(automation_risk_category = factor(automation_risk_category,
+                                            levels = c("Low", "Medium", "High")))
 
+fig_bar <- plot_ly(risk_counts,
+                   x = ~automation_risk_category,
+                   y = ~n,
+                   type = 'bar',
+                   color = ~automation_risk_category,
+                   colors = c("Low" = "#2ecc71",
+                              "Medium" = "#f39c12",
+                              "High" = "#e74c3c"),
+                   text = ~n,
+                   textposition = 'outside',
+                   hovertemplate = paste("Categoría: %{x}<br>Cantidad: %{y}<extra></extra>")) %>%
+  layout(title = "Distribución de empleos por categoría de riesgo de automatización",
+         xaxis = list(title = "Categoría de riesgo"),
+         yaxis = list(title = "Cantidad de registros"),
+         showlegend = FALSE)
 
+fig_bar
+```
 
+Las tres categorías presentan una distribución relativamente equilibrada, con una leve predominancia de los empleos clasificados como riesgo alto y medio sobre los de riesgo bajo. Esto indica que la mayoría de los roles analizados se encuentran en una zona de vulnerabilidad considerable frente a la automatización, lo cual sitúa el debate no en si la IA afecta el mercado laboral, sino en qué medida y bajo qué condiciones lo hace.
 
+Sin embargo, las categorías por sí solas no revelan la magnitud real del riesgo dentro de cada grupo. Para entender cómo se distribuye ese riesgo de forma continua, el siguiente histograma desglosa el espectro completo en intervalos y muestra cuántos empleos caen en cada rango.
 
+```{r}
+fig_hist <- plot_ly(data,
+                    x = ~automation_risk_percent,
+                    type = 'histogram',
+                    nbinsx = 30,
+                    marker = list(color = '#3498db',
+                                  line = list(color = 'white', width = 0.5)),
+                    hovertemplate = paste("Rango: %{x}<br>Cantidad: %{y}<extra></extra>")) %>%
+  layout(title = "Distribución del riesgo de automatización",
+         xaxis = list(title = "Riesgo de automatización (%)"),
+         yaxis = list(title = "Cantidad de empleos"),
+         bargap = 0.05)
+
+fig_hist
+```
+
+La distribución muestra una forma asimétrica con sesgo hacia la derecha: los empleos se concentran progresivamente entre el 25% y el 75% de riesgo, alcanzando su punto más alto alrededor del 50-60%, para luego caer a partir del 77%. Esto confirma que pocos empleos escapan completamente a la amenaza de automatización, pero también que muy pocos enfrentan un riesgo extremo cercano al 100%. La mayor parte del mercado laboral analizado opera en una zona de riesgo medio-alto, lo que plantea un escenario de transformación gradual más que de sustitución masiva e inmediata.
+
+Para cerrar esta primera exploración individual, vale la pena preguntarse: ¿cómo ha afectado económicamente la adopción de IA a los trabajadores? Esta gráfica de pastel clasifica los empleos en tres grupos según la dirección de su cambio salarial: aquellos cuyo salario subió más de un 5%, los que bajaron más de un 5%, y los que se mantuvieron sin cambios significativos.
+
+```{r}
+salary_cats <- data %>%
+  mutate(salary_direction = case_when(
+    salary_change_percent > 5  ~ "Subió",
+    salary_change_percent < -5 ~ "Bajó",
+    TRUE                       ~ "Sin cambio significativo"
+  )) %>%
+  count(salary_direction)
+
+fig_pie <- plot_ly(salary_cats,
+                   labels = ~salary_direction,
+                   values = ~n,
+                   type = 'pie',
+                   textinfo = 'label+percent',
+                   hovertemplate = paste("Categoría: %{label}<br>Cantidad: %{value}<br>Porcentaje: %{percent}<extra></extra>"),
+                   marker = list(colors = c("#e74c3c", "#2ecc71", "#95a5a6"))) %>%
+  layout(title = "Distribución del cambio salarial tras la adopción de IA")
+
+fig_pie
+```
+
+La distribución muestra que aproximadamente un 31% de los empleos experimentaron una subida salarial considerable y un 30.6% una bajada, mientras que el grupo más numeroso, con un 38.4%, se mantuvo sin cambios relevantes. Esto sugiere que la adopción de IA no ha generado un impacto económico uniforme ni claramente negativo: para una porción importante de los trabajadores el efecto salarial ha sido moderado, mientras que para quienes sí lo sintieron, las subidas y bajadas se distribuyen de forma casi simétrica. El impacto económico depende probablemente de factores como el tipo de rol, la industria o el nivel educativo, variables que exploraremos a continuación.
+
+Una vez exploradas las variables de forma individual, el siguiente paso es comenzar a cruzarlas para detectar patrones de interacción. La primera pregunta natural es si todas las industrias se ven afectadas de la misma manera por el riesgo de automatización, o si algunas concentran más empleos en las categorías de mayor vulnerabilidad. Esta gráfica de barras agrupadas muestra, para cada industria, cuántos empleos pertenecen a cada categoría de riesgo: bajo, medio y alto.
+
+```{r}
+risk_industry <- data %>%
+  count(industry, automation_risk_category) %>%
+  mutate(automation_risk_category = factor(automation_risk_category,
+                                            levels = c("Low", "Medium", "High")))
+
+fig_grouped <- plot_ly(risk_industry,
+                       x = ~industry,
+                       y = ~n,
+                       color = ~automation_risk_category,
+                       colors = c("Low" = "#2ecc71",
+                                  "Medium" = "#f39c12",
+                                  "High" = "#e74c3c"),
+                       type = 'bar',
+                       hovertemplate = paste("Industria: %{x}<br>Cantidad: %{y}<extra></extra>")) %>%
+  layout(title = "Distribución del riesgo de automatización por industria",
+         xaxis = list(title = "Industria"),
+         yaxis = list(title = "Cantidad de empleos"),
+         barmode = 'group',
+         legend = list(title = list(text = "Categoría de riesgo")))
+
+fig_grouped
+```
+
+En todas las industrias predomina la categoría de riesgo medio, seguida del riesgo alto y luego el bajo. Este patrón se repite de forma consistente sin importar el sector, lo que confirma que el riesgo de automatización no es un fenómeno concentrado en industrias específicas sino una presión transversal que atraviesa el mercado laboral en su conjunto. Ninguna industria escapa a esta dinámica, aunque sectores como energía y finanzas muestran una proporción ligeramente mayor de empleos en riesgo alto en comparación con los demás.
+
+Ahora bien, saber que el riesgo es transversal no responde todavía si ese riesgo tiene consecuencias concretas para los trabajadores. Una de las más directas es la presión para recapacitarse. La siguiente gráfica de densidad muestra la distribución de la urgencia de recapacitación para cada categoría de riesgo, permitiendo ver si los trabajadores más expuestos a la automatización enfrentan también una mayor presión para actualizar sus habilidades.
+
+```{r}
+fig_density <- plot_ly(alpha = 0.6)
+
+colores <- c("Low" = "#2ecc71", "Medium" = "#f39c12", "High" = "#e74c3c")
+
+for (cat in c("Low", "Medium", "High")) {
+  df_cat <- data %>% filter(automation_risk_category == cat)
+  dens <- density(df_cat$reskilling_urgency_score)
+  
+  fig_density <- fig_density %>%
+    add_trace(x = dens$x,
+              y = dens$y,
+              type = 'scatter',
+              mode = 'lines',
+              fill = 'tozeroy',
+              name = cat,
+              line = list(color = colores[cat]),
+              fillcolor = paste0(colores[cat], "40"),
+              hovertemplate = paste("Urgencia:", round(dens$x, 1),
+                                    "<br>Densidad:", round(dens$y, 4),
+                                    "<extra>", cat, "</extra>"))
+}
+
+fig_density <- fig_density %>%
+  layout(title = "Distribución de la urgencia de recapacitación por categoría de riesgo",
+         xaxis = list(title = "Urgencia de recapacitación"),
+         yaxis = list(title = "Densidad"),
+         legend = list(title = list(text = "Categoría de riesgo")))
+
+fig_density
+```
+
+Las tres distribuciones presentan formas similares pero desplazadas claramente hacia la derecha conforme aumenta el riesgo. Los empleos de bajo riesgo se concentran alrededor de una urgencia de 25 puntos, los de riesgo medio alrededor de 35 y los de alto riesgo cerca de 46. El escaso solapamiento entre las curvas confirma que existe una relación directa y consistente: a mayor riesgo de automatización, mayor es la presión que enfrentan los trabajadores para recapacitarse. Este hallazgo conecta directamente con lo que se explorará a continuación, donde el análisis se amplía para incorporar simultáneamente múltiples dimensiones del impacto de la IA en el mundo laboral.
 
 Al explorar la relación entre el riesgo de automatización y los cambios salariales, nos encontramos con un panorama revelador. En esta visualización, cada punto representa un rol laboral; su posición horizontal indica el porcentaje estimado de automatización, mientras que la vertical refleja la variación salarial tras la adopción de inteligencia artificial. El tamaño de cada punto añade una tercera dimensión: la volatilidad de los salarios en ese puesto. Además, los colores distinguen los sectores industriales, y es posible aislar cada industria para estudiarla de manera independiente, facilitando la comparación entre ellas.
 
@@ -205,4 +351,4 @@ multifig2
 ```
 
 
-
+## Conclusiones
