@@ -24,7 +24,7 @@ data <- read.csv("data/ai_job_replacement_2020_2026_v2.csv")
 # ¿En qué medida la inteligencia artificial está afectando el mercado laboral?
 
 ## Introducción
-La inteligencia artificial (IA) está transformando el mercado laboral a una velocidad sin precedentes. Lo que hace unos años era un tema de debate teórico, hoy es una realidad que impacta directamente en la empleabilidad, los salarios y las habilidades requeridas en casi todos los sectores Haciendo que surjan preguntas como ¿La IA nos va a reemplazar?, ¿Todos los empleos se verán afectados?, entre otras preguntas.
+La inteligencia artificial (IA) está transformando el mercado laboral a una velocidad sin precedentes. Lo que hace unos años era un tema de debate teórico, hoy es una realidad que impacta directamente en la empleabilidad, los salarios y las habilidades requeridas en casi todos los sectores. Haciendo que surjan preguntas como ¿La IA nos va a reemplazar?, ¿Todos los empleos se verán afectados?, entre otras preguntas.
 Esta transformación genera incertidumbre, pero también abre oportunidades para quienes logran adaptarse. Comprender la magnitud y las características de este cambio es fundamental para anticipar sus efectos y diseñar estrategias de formación y política laboral efectivas.
 
 El presente análisis exploratorio de datos (EDA) busca entender a profundidad el futuro del trabajo en la era de la IA por medio de un dataset que contiene información detallada de cientos de perfiles profesionales, abarcando variables como el riesgo de automatización, la evolución salarial, la brecha de habilidades, el nivel de adopción de IA y características contextuales como industria, país y nivel educativo. A través de este análisis, se busca responder a una pregunta central que guía toda la exploración: ¿En qué medida la inteligencia artificial está afectando el mercado laboral?
@@ -123,6 +123,8 @@ fig_pie <- plot_ly(salary_cats,
 fig_pie
 ```
 
+Para entender si este impacto económico varía según el sector, el siguiente paso es explorar cómo se distribuye el riesgo de automatización dentro de cada industria.
+
 La distribución muestra que aproximadamente un 31% de los empleos experimentaron una subida salarial considerable y un 30.6% una bajada, mientras que el grupo más numeroso, con un 38.4%, se mantuvo sin cambios relevantes. Esto sugiere que la adopción de IA no ha generado un impacto económico uniforme ni claramente negativo: para una porción importante de los trabajadores el efecto salarial ha sido moderado, mientras que para quienes sí lo sintieron, las subidas y bajadas se distribuyen de forma casi simétrica. El impacto económico depende probablemente de factores como el tipo de rol, la industria o el nivel educativo, variables que exploraremos a continuación.
 
 Una vez exploradas las variables de forma individual, el siguiente paso es comenzar a cruzarlas para detectar patrones de interacción. La primera pregunta natural es si todas las industrias se ven afectadas de la misma manera por el riesgo de automatización, o si algunas concentran más empleos en las categorías de mayor vulnerabilidad. Esta gráfica de barras agrupadas muestra, para cada industria, cuántos empleos pertenecen a cada categoría de riesgo: bajo, medio y alto.
@@ -191,11 +193,6 @@ Las tres distribuciones presentan formas similares pero desplazadas claramente h
 
 Al explorar la relación entre el riesgo de automatización y los cambios salariales, nos encontramos con un panorama revelador. En esta visualización, cada punto representa un rol laboral; su posición horizontal indica el porcentaje estimado de automatización, mientras que la vertical refleja la variación salarial tras la adopción de inteligencia artificial. El tamaño de cada punto añade una tercera dimensión: la volatilidad de los salarios en ese puesto. Además, los colores distinguen los sectores industriales, y es posible aislar cada industria para estudiarla de manera independiente, facilitando la comparación entre ellas.
 
-Al mirar hacia la derecha, donde el riesgo es más alto, encontramos una mezcla interesante: algunos puestos muestran cambios salariales positivos, otros negativos, y entre ellos destacan roles como los representantes de servicio al cliente (customer support rep) y los conductores de camión (truck driver). En estos casos, la urgencia de recapacitación es alta, independientemente de si su salario subió o bajó. Esto sugiere que, aunque el riesgo de automatización sea elevado, el impacto económico puede variar, pero la necesidad de actualizar habilidades se mantiene como una constante.
-
-Otro detalle interesante es cómo se comporta la urgencia de recapacitación a medida que aumenta el riesgo. En general, cuando el riesgo es bajo, la urgencia también tiende a ser baja, a medida que el riesgo crece, la urgencia va subiendo. Sin embargo, hay puestos con riesgo alto que no tienen una urgencia tan alta, pero la tendencia es clara. Esto sugiere que los trabajadores en empleos más expuestos a la IA sienten (o se les exige) una mayor presión para actualizarse.
-
-En cuanto al rango de los datos, todos los puntos se concentran entre el 5% y el 95% de riesgo. No hay empleos con riesgo 0% ni 100%, lo cual tiene sentido: ningún trabajo está completamente a salvo de la automatización ni totalmente condenado a desaparecer. Dentro de ese espectro, las industrias de salud, manufactura, transporte y tecnología muestran un patrón parecido: la mayoría de sus puestos se concentran entre el 20% y el 80% de riesgo, y los cambios salariales se mueven entre una caída del 20% y un aumento del 20%. Aunque son sectores muy distintos, comparten ese rango común. Un mismo rol puede tener comportamientos distintos en diferentes lugares, lo que nos recuerda que el impacto de la IA no solo depende del tipo de trabajo, sino también del contexto donde se desempeña.
 
 ```{r}
 multifig1 <- plot_ly(data, 
@@ -216,6 +213,12 @@ multifig1 <- plot_ly(data,
 
 multifig1
 ```
+
+Al mirar hacia la derecha, donde el riesgo es más alto, encontramos una mezcla interesante: algunos puestos muestran cambios salariales positivos, otros negativos, y entre ellos destacan roles como los representantes de servicio al cliente (customer support rep) y los conductores de camión (truck driver). En estos casos, la urgencia de recapacitación es alta, independientemente de si su salario subió o bajó. Esto sugiere que, aunque el riesgo de automatización sea elevado, el impacto económico puede variar, pero la necesidad de actualizar habilidades se mantiene como una constante.
+
+Otro detalle interesante es cómo se comporta la urgencia de recapacitación a medida que aumenta el riesgo. En general, cuando el riesgo es bajo, la urgencia también tiende a ser baja, a medida que el riesgo crece, la urgencia va subiendo. Sin embargo, hay puestos con riesgo alto que no tienen una urgencia tan alta, pero la tendencia es clara. Esto sugiere que los trabajadores en empleos más expuestos a la IA sienten (o se les exige) una mayor presión para actualizarse.
+
+En cuanto al rango de los datos, todos los puntos se concentran entre el 5% y el 95% de riesgo. No hay empleos con riesgo 0% ni 100%, lo cual tiene sentido: ningún trabajo está completamente a salvo de la automatización ni totalmente condenado a desaparecer. Dentro de ese espectro, las industrias de salud, manufactura, transporte y tecnología muestran un patrón parecido: la mayoría de sus puestos se concentran entre el 20% y el 80% de riesgo, y los cambios salariales se mueven entre una caída del 20% y un aumento del 20%. Aunque son sectores muy distintos, comparten ese rango común. Un mismo rol puede tener comportamientos distintos en diferentes lugares, lo que nos recuerda que el impacto de la IA no solo depende del tipo de trabajo, sino también del contexto donde se desempeña.
 
 Profundizando en las industrias destacadas anteriormente, el análisis con promedios nos ofrece una visión más clara y menos fragmentada de la evolución de la urgencia de recapacitación.
 
@@ -350,5 +353,74 @@ multifig2 <- plot_ly(
 multifig2
 ```
 
+Para cerrar el análisis, se presenta una gráfica compuesta que integra en una sola visualización las tres variables que han guiado este informe: el riesgo de automatización, el cambio salarial y la urgencia de recapacitación. Si bien estas variables ya fueron exploradas de forma individual y cruzada en secciones anteriores, aquí se retoman bajo una transformación común: cada una fue normalizada a una escala de 0 a 1, lo que permite compararlas directamente sin que las diferencias de magnitud entre ellas distorsionen la lectura. De este modo, lo que se observa no son valores absolutos, sino la forma y el comportamiento relativo de cada distribución.
+
+Lo que revela esta superposición es revelador. El riesgo de automatización presenta la distribución más amplia y achatada de las tres, lo que confirma que los empleos analizados se dispersan a lo largo de todo el espectro de vulnerabilidad, sin concentrarse en un punto extremo. El cambio salarial, por su parte, muestra la curva más estrecha y elevada, lo que indica que la mayoría de los trabajadores experimentó variaciones salariales moderadas y similares entre sí, con poca dispersión. La urgencia de recapacitación ocupa una posición intermedia: más concentrada que el riesgo, pero más dispersa que el salario, reflejando que la presión formativa varía considerablemente según el perfil del empleo.
+
+Leer estas tres curvas juntas cierra el hilo narrativo del análisis: la IA impacta el mercado laboral de forma desigual según la dimensión que se observe. Mientras el riesgo se distribuye ampliamente, el efecto económico tiende a moderarse para la mayoría, y la necesidad de adaptación formativa emerge como la variable más heterogénea y, por tanto, la más determinante para entender cómo cada trabajador enfrenta la transformación tecnológica.
+
+
+```{r}
+# Normalización (min-max)
+normalize <- function(x) {
+  (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+
+data_comp <- data %>%
+  mutate(
+    risk_norm = normalize(automation_risk_percent),
+    salary_norm = normalize(salary_change_percent),
+    reskill_norm = normalize(reskilling_urgency_score)
+  )
+
+# Crear densidades manuales
+dens_risk <- density(data_comp$risk_norm)
+dens_salary <- density(data_comp$salary_norm)
+dens_reskill <- density(data_comp$reskill_norm)
+
+# Plot compuesto
+fig_comp <- plot_ly() %>%
+  add_trace(x = dens_risk$x, y = dens_risk$y,
+            type = 'scatter', mode = 'lines',
+            name = 'Riesgo de automatización',
+            line = list(color = '#e74c3c'),
+            fill = 'tozeroy',
+            opacity = 0.5) %>%
+  
+  add_trace(x = dens_salary$x, y = dens_salary$y,
+            type = 'scatter', mode = 'lines',
+            name = 'Cambio salarial',
+            line = list(color = '#3498db'),
+            fill = 'tozeroy',
+            opacity = 0.5) %>%
+  
+  add_trace(x = dens_reskill$x, y = dens_reskill$y,
+            type = 'scatter', mode = 'lines',
+            name = 'Urgencia de recapacitación',
+            line = list(color = '#2ecc71'),
+            fill = 'tozeroy',
+            opacity = 0.5) %>%
+  
+  layout(
+    title = "Comparación compuesta de distribuciones normalizadas",
+    xaxis = list(title = "Valor normalizado"),
+    yaxis = list(title = "Densidad"),
+    legend = list(title = list(text = "Variables"))
+  )
+
+fig_comp
+```
+
 
 ## Conclusiones
+
+El análisis exploratorio realizado permite responder con mayor profundidad la preguntaque guió este proyecto: ¿en qué medida la inteligencia artificial está afectando el mercado laboral? La respuesta no es simple ni uniforme, pero los datos apuntan a una conclusión clara: la IA está transformando el mercado laboral de forma transversal, progresiva y multidimensional, con efectos que varían según la dimensión que se analice.
+
+En términos de riesgo, la mayoría de los empleos analizados se sitúa en una zona de vulnerabilidad media-alta, sin que ninguna industria escape a esta presión. No se trata de un fenómeno concentrado en sectores específicos, sino de una fuerza que atraviesa transversalmente el mercado laboral. Esto desmiente la idea de que solo ciertos trabajos 
+"de baja calificación" están en riesgo: la exposición a la automatización es amplia y heterogénea.
+
+En el plano económico, la IA no ha generado una caída salarial generalizada, sino efectos diferenciados que dependen del rol, la industria y el contexto.
+
+La dimensión donde el impacto resulta más consistente y directa es la formativa. A mayor  riesgo de automatización, mayor urgencia de recapacitación, y esta relación se mantiene independientemente del sector o del país. Los empleos más expuestos a la IA son también los que más presión formativa enfrentan, lo que convierte la actualización de habilidades en el verdadero eje del futuro del trabajo. Sectores como tecnología lideran esta presión de forma estructural, mientras que manufactura y transporte la experimentan de manera más cíclica.
+
+Finalmente, 
