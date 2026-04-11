@@ -20,6 +20,12 @@ library(ggplot2)
 # Lectura de datos
 data <- read.csv("data/ai_job_replacement_2020_2026_v2.csv")
 ```
+Análsis elaborado por:
+
+Felipe Masís Calderón - 2023047882 
+
+Dayana Xie Li - 2022097967
+
 
 # ¿En qué medida la inteligencia artificial está afectando el mercado laboral?
 
